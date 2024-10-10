@@ -1,4 +1,4 @@
-import os
+import sys
 import logging
 import subprocess
 import tempfile
@@ -17,12 +17,14 @@ def process_gaze_data(gaze_data):
     output_arff_path = run_blstm_model(features_arff_path)
 
     # Step 4: Parse the output ARFF to classify fixations, saccades, and smooth pursuits
-    fixations, saccades, smooth_pursuits, total = parse_output_arff(output_arff_path, vt)
+    total = parse_output_arff(output_arff_path, vt)
 
-    return fixations, saccades, smooth_pursuits, total
+    return total
 
 def convert_gaze_data_to_arff(gaze_data):
     vt = []
+    first = True
+
     # Create .arff file from gaze data
     temp_arff = tempfile.NamedTemporaryFile(delete=False, suffix='.arff')
     with open(temp_arff.name, 'w') as arff_file:
@@ -41,7 +43,7 @@ def convert_gaze_data_to_arff(gaze_data):
         arff_file.write("@DATA\n")
 
         for point in gaze_data:
-            arff_file.write(f"{point['timestamp'] * 1000},{point['x']},{point['y']},1\n")
+            arff_file.write(f"{point['videoTime']*1000000},{point['x']},{point['y']},1\n")
             vt.append(point['videoTime'])
 
     return temp_arff.name, vt
@@ -73,9 +75,6 @@ def run_blstm_model(arff_file_path):
 def parse_output_arff(output_arff_path, vt):
     # Read the ARFF file and extract classifications
     logging.info("Parsing output.")
-    fixations = []
-    saccades = []
-    smooth_pursuits = []
     total = []
     with open(output_arff_path, 'r') as arff_file:
         data_section = False
@@ -87,22 +86,15 @@ def parse_output_arff(output_arff_path, vt):
             if data_section and not line.startswith('%'):
                 fields = line.strip().split(',')
                 timestamp, x, y, c, s1, d1, a1, s2, d2, a2, s4, d4, a4, s8, d8, a8, s16, d16, a16, classification = fields
-                event = {'videoTime': float(vt.pop(0)), 'x': float(x), 'y': float(y), 'classification': str(classification)}
-
-                if classification == 'FIX':
-                    fixations.append(event)
-                elif classification == 'SACCADE':
-                    saccades.append(event)
-                elif classification == 'SP':
-                    smooth_pursuits.append(event)
+                event = {'x': float(x), 'y': float(y), 'videoTime': float(vt.pop(0)), 'classification': str(classification)}
                 total.append(event)
     logging.info("Output parsed.")
-    return fixations, saccades, smooth_pursuits, total
+    return total
 
-if __name__ == "__main__":
 
+def main(arg1, arg2):
     # Paths for video and data
-    unprocessed_gaze_csv_path = "unprocessed_gaze_data.csv"
+    unprocessed_gaze_csv_path = arg1
 
     # Save unprocessed gaze data to CSV
     # pd.DataFrame(gaze_data).to_csv(unprocessed_gaze_csv_path, index=False)
@@ -110,9 +102,18 @@ if __name__ == "__main__":
     logging.info(f"Received {len(gaze_data)} gaze points.")
 
     # Process gaze data to classify fixations, saccades, and smooth pursuit
-    fixations, saccades, smooth_pursuits, total = process_gaze_data(gaze_data)
-
+    total = process_gaze_data(gaze_data)
 
     # Save processed gaze data to CSV
     processed_data = total
-    pd.DataFrame(processed_data).to_csv("processed_gaze_data.csv", index=False)
+    pd.DataFrame(processed_data).to_csv(arg2, index=False)
+
+
+
+if __name__ == "__main__":
+
+    # Call the main function with two arguments
+    if len(sys.argv) != 3:
+        print("Usage: python script.py <arg1> <arg2>")
+    else:
+        main(sys.argv[1], sys.argv[2])
