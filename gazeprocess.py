@@ -79,7 +79,7 @@ def parse_output_arff(output_arff_path, vt):
     with open(output_arff_path, 'r') as arff_file:
         data_section = False
         for line in arff_file:
-            logging.info(f"{line}")
+            # logging.info(f"{line}")
             if line.strip().lower() == "@data":
                 data_section = True
                 continue
@@ -95,6 +95,7 @@ def parse_output_arff(output_arff_path, vt):
 def main(arg1, arg2):
     # Paths for video and data
     unprocessed_gaze_csv_path = arg1
+    processed_gaze_csv_path = arg2
 
     # Save unprocessed gaze data to CSV
     # pd.DataFrame(gaze_data).to_csv(unprocessed_gaze_csv_path, index=False)
@@ -106,7 +107,7 @@ def main(arg1, arg2):
 
     # Save processed gaze data to CSV
     processed_data = total
-    pd.DataFrame(processed_data).to_csv(arg2, index=False)
+    pd.DataFrame(processed_data).to_csv(processed_gaze_csv_path, index=False)
 
 
 
