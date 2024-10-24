@@ -6,9 +6,9 @@ import pandas as pd
 
 logging.basicConfig(level=logging.INFO)
 
-def process_gaze_data(gaze_data):
+def process_gaze_data(gaze_data, scale):
     # Step 1: Prepare gaze data in .arff format
-    arff_file_path, vt = convert_gaze_data_to_arff(gaze_data)
+    arff_file_path, vt = convert_gaze_data_to_arff(gaze_data, scale)
 
     # Step 2: Extract features using MATLAB script (if needed)
     features_arff_path = extract_features_from_arff(arff_file_path)
@@ -21,7 +21,7 @@ def process_gaze_data(gaze_data):
 
     return total
 
-def convert_gaze_data_to_arff(gaze_data):
+def convert_gaze_data_to_arff(gaze_data, scale):
     vt = []
     first = True
 
@@ -43,8 +43,8 @@ def convert_gaze_data_to_arff(gaze_data):
         arff_file.write("@DATA\n")
 
         for point in gaze_data:
-            arff_file.write(f"{point['videoTime']*1000000},{point['x']},{point['y']},1\n")
-            vt.append(point['videoTime'])
+            arff_file.write(f"{point['videoTime']*(1000000/int(scale))},{point['x']},{point['y']},1\n")
+            vt.append(point['videoTime']/int(scale))
 
     return temp_arff.name, vt
 
@@ -92,10 +92,11 @@ def parse_output_arff(output_arff_path, vt):
     return total
 
 
-def main(arg1, arg2):
+def main(arg1, arg2, arg3):
     # Paths for video and data
     unprocessed_gaze_csv_path = arg1
     processed_gaze_csv_path = arg2
+
 
     # Save unprocessed gaze data to CSV
     # pd.DataFrame(gaze_data).to_csv(unprocessed_gaze_csv_path, index=False)
@@ -103,7 +104,7 @@ def main(arg1, arg2):
     logging.info(f"Received {len(gaze_data)} gaze points.")
 
     # Process gaze data to classify fixations, saccades, and smooth pursuit
-    total = process_gaze_data(gaze_data)
+    total = process_gaze_data(gaze_data, arg3)
 
     # Save processed gaze data to CSV
     processed_data = total
@@ -114,7 +115,7 @@ def main(arg1, arg2):
 if __name__ == "__main__":
 
     # Call the main function with two arguments
-    if len(sys.argv) != 3:
-        print("Usage: python script.py <arg1> <arg2>")
+    if len(sys.argv) != 4:
+        print("Usage: python script.py <arg1> <arg2> <arg3>")
     else:
-        main(sys.argv[1], sys.argv[2])
+        main(sys.argv[1], sys.argv[2], sys.argv[3])
