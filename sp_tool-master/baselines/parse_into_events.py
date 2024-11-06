@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 import glob
 from argparse import ArgumentParser
-import sys, os
+import sys
+import os
 import numpy as np
 from itertools import groupby
 

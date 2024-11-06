@@ -279,7 +279,7 @@ class DBSCANWithMinPts(DBSCANWithTimeSlice):
         self.min_pts_abs_value = None  # will initialize when the data is provided, in case it is `num_observers`
 
         self.min_pts = min_pts
-        if type(self.min_pts) == int:
+        if type(self.min_pts) is int:
             self.min_pts_abs_value = self.min_pts
 
     def _setup_internal_parameters(self, gaze_points_list):
@@ -354,7 +354,7 @@ class DBSCANWithMinObservers(DBSCANWithTimeSlice):
 
         """
         super(DBSCANWithMinObservers, self)._setup_internal_parameters(gaze_points_list)
-        if type(self.min_observers) == float:
+        if type(self.min_observers) is float:
             self.min_observers_abs_value = round(self.min_observers * len(gaze_points_list))
 
     def _validate_neighbourhood(self, neighbourhood):

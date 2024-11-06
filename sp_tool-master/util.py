@@ -131,10 +131,10 @@ def get_xy_moving_average(data, window_size, inplace=False):
 
 
 def update_progress(progress, out_stream=sys.stderr, width_count=100):
-    if type(progress) == str:
+    if type(progress) is str:
         out_stream.write('\r{}'.format(progress))
         return
 
-    if type(progress) == tuple:
+    if type(progress) is tuple:
         progress = progress[0] / float(progress[1])
     out_stream.write('\r[{0}] {1:2f}%'.format(('#'*(int(progress * width_count))).ljust(width_count), progress * 100))

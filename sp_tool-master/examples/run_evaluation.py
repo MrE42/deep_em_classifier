@@ -111,7 +111,7 @@ def evaluate_prepared_output(in_folder, movies=None,
     else:
         # if we are dealing with categorical attributes, find all labels that are used in the ground truth
         if len(ground_truth_objects) > 0 and \
-                        ground_truth_objects[0]['data'][hand_labelling_expert].dtype.type is np.string_:
+                        ground_truth_objects[0]['data'][hand_labelling_expert].dtype.type is np.bytes_:
             all_em_labels = [set(obj['data'][hand_labelling_expert]) for obj in ground_truth_objects]
         else:
             all_em_labels = [set([EM_VALUE_MAPPING_DEFAULT[x] for x in obj['data'][hand_labelling_expert]])

@@ -175,7 +175,7 @@ class ArffHelper(object):
 
         """
         # check if def_value is in dtype
-        if type(def_value) == str and def_value not in dtype:
+        if type(def_value) is str and def_value not in dtype:
             warnings.warn("The type of the default value is not the same as type of column data"
                           " or the default value is not in the list (date type provided is {})".format(name))
 
@@ -379,7 +379,7 @@ class ArffHelper(object):
         if data_type in list(ArffHelper._ATTRIBUTES_TYPE.keys()):
             return ArffHelper._ATTRIBUTES_TYPE[data_type]
         else:
-            if type(data_type) == list:
+            if type(data_type) is list:
                 max_length = max(list(map(len, data_type)))
             else:
                 raise ValueError("Wrong data type in attributes. "

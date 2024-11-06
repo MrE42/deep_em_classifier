@@ -3,18 +3,21 @@ import logging
 import subprocess
 import tempfile
 import pandas as pd
+import os
+
+
 
 logging.basicConfig(level=logging.INFO)
 
-def process_gaze_data(gaze_data, scale):
+def process_gaze_data(gaze_data, scale, path):
     # Step 1: Prepare gaze data in .arff format
     arff_file_path, vt = convert_gaze_data_to_arff(gaze_data, scale)
 
     # Step 2: Extract features using MATLAB script (if needed)
-    features_arff_path = extract_features_from_arff(arff_file_path)
+    features_arff_path = extract_features_from_arff(arff_file_path, path)
 
     # Step 3: Run the BLSTM model on the extracted features
-    output_arff_path = run_blstm_model(features_arff_path)
+    output_arff_path = run_blstm_model(features_arff_path, path)
 
     # Step 4: Parse the output ARFF to classify fixations, saccades, and smooth pursuits
     total = parse_output_arff(output_arff_path, vt)
@@ -48,27 +51,31 @@ def convert_gaze_data_to_arff(gaze_data, scale):
 
     return temp_arff.name, vt
 
-def extract_features_from_arff(arff_file_path):
+def extract_features_from_arff(arff_file_path, path):
     # Call MATLAB script to extract features
     logging.info("Features generating.")
     features_arff = tempfile.NamedTemporaryFile(delete=False, suffix='.arff')
     logging.info(f"{arff_file_path}, {features_arff.name}")
+    os.chdir(path+'\\deep_em')
     subprocess.run(['matlab', '-batch', f"AnnotateData('{arff_file_path}', '{features_arff.name}')"])
+    os.chdir(path)
     logging.info("Features generated.")
     return features_arff.name
 
-def run_blstm_model(arff_file_path):
+def run_blstm_model(arff_file_path, path):
     # Run the BLSTM model using the pre-trained model
     logging.info("Running BLSTM.")
     output_arff = tempfile.NamedTemporaryFile(delete=False, suffix='.arff')
     model_path = "example_data/model.h5"
+    os.chdir(path+'\\deep_em')
     subprocess.run([
-        "venv\Scripts\python.exe", 'blstm_model_run.py',
+        "C:\\Users\catta\PycharmProjects\post-processing\deep_em\\venv\Scripts\python.exe", 'blstm_model_run.py',
         '--feat', 'speed', 'direction',
         '--model', model_path,
         '--in', arff_file_path,
         '--out', output_arff.name,
     ])
+    os.chdir(path)
     logging.info("BLTSM complete.")
     return output_arff.name
 
@@ -92,10 +99,11 @@ def parse_output_arff(output_arff_path, vt):
     return total
 
 
-def main(arg1, arg2, arg3):
+def main(arg1, arg2, arg3, arg4):
     # Paths for video and data
     unprocessed_gaze_csv_path = arg1
     processed_gaze_csv_path = arg2
+    root_path = arg4
 
 
     # Save unprocessed gaze data to CSV
@@ -104,7 +112,7 @@ def main(arg1, arg2, arg3):
     logging.info(f"Received {len(gaze_data)} gaze points.")
 
     # Process gaze data to classify fixations, saccades, and smooth pursuit
-    total = process_gaze_data(gaze_data, arg3)
+    total = process_gaze_data(gaze_data, arg3, root_path)
 
     # Save processed gaze data to CSV
     processed_data = total
@@ -118,4 +126,4 @@ if __name__ == "__main__":
     if len(sys.argv) != 4:
         print("Usage: python script.py <arg1> <arg2> <arg3>")
     else:
-        main(sys.argv[1], sys.argv[2], sys.argv[3])
+        main(sys.argv[1], sys.argv[2], sys.argv[3], os.getcwd().replace('\\deep_em', ''))

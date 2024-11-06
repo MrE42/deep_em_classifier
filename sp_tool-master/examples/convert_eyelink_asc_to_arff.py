@@ -167,7 +167,7 @@ def convert(fname, corresponding_video_name,
         else:
             parts = line.split('\t')  # Tab-separated
             try:
-                timestamp = int(parts[0])
+                int(parts[0])
             except ValueError:
                 # this is not a sample line
                 # is it an event line?
