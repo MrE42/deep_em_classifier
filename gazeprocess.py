@@ -51,6 +51,7 @@ def convert_gaze_data_to_arff(gaze_data, scale):
 
     return temp_arff.name, vt
 
+'''
 def extract_features_from_arff(arff_file_path, path):
     # Call MATLAB script to extract features
     logging.info("Features generating.")
@@ -62,6 +63,20 @@ def extract_features_from_arff(arff_file_path, path):
     logging.info("Features generated.")
     return features_arff.name
 
+'''
+# Import the ARFF processing functions
+from arff_processing import annotate_data
+def extract_features_from_arff(arff_file_path, path):
+    # Call the annotate_data function to process features
+    logging.info("Annotating data and extracting features.")
+    features_arff = tempfile.NamedTemporaryFile(delete=False, suffix='.arff')
+    os.chdir(path + '\\deep_em')
+    print(arff_file_path)
+    annotate_data(arff_file_path, features_arff.name)
+    os.chdir(path)
+    logging.info("Features generated.")
+    return features_arff.name
+
 def run_blstm_model(arff_file_path, path):
     # Run the BLSTM model using the pre-trained model
     logging.info("Running BLSTM.")
@@ -69,7 +84,7 @@ def run_blstm_model(arff_file_path, path):
     model_path = "example_data/model.h5"
     os.chdir(path+'\\deep_em')
     subprocess.run([
-        "C:\\Users\catta\PycharmProjects\post-processing\deep_em\\venv\Scripts\python.exe", 'blstm_model_run.py',
+        path+'\\deep_em\\venv\Scripts\python.exe', 'blstm_model_run.py',
         '--feat', 'speed', 'direction',
         '--model', model_path,
         '--in', arff_file_path,
