@@ -6,7 +6,6 @@ import pandas as pd
 import os
 
 
-
 logging.basicConfig(level=logging.INFO)
 
 def process_gaze_data(gaze_data, scale, path):
@@ -84,7 +83,7 @@ def run_blstm_model(arff_file_path, path):
     model_path = "example_data/model.h5"
     os.chdir(path+'\\deep_em')
     subprocess.run([
-        path+'\\deep_em\\venv\Scripts\python.exe', 'blstm_model_run.py',
+        path+'\\venv\Scripts\python.exe', 'blstm_model_run.py',
         '--feat', 'speed', 'direction',
         '--model', model_path,
         '--in', arff_file_path,

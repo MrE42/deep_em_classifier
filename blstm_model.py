@@ -6,13 +6,13 @@ import glob
 import pickle
 import json
 
-import keras
-from keras.models import Sequential
-from keras.layers import LSTM, Dense, Conv1D, TimeDistributed, Flatten, Activation, Dropout, Bidirectional
-from keras.layers.pooling import MaxPooling1D
-from keras.callbacks import History, TensorBoard, Callback
-import keras.initializers as KI
-from keras.layers import BatchNormalization
+import tf_keras as keras
+from tf_keras.models import Sequential
+from tf_keras.layers import LSTM, Dense, Conv1D, TimeDistributed, Flatten, Activation, Dropout, Bidirectional
+from tf_keras.layers import MaxPooling1D
+from tf_keras.callbacks import History, TensorBoard, Callback
+import tf_keras.initializers as KI
+from tf_keras.layers import BatchNormalization
 
 from keras import backend as K
 import numpy as np

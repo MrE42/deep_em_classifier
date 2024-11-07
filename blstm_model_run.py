@@ -5,7 +5,7 @@ import glob
 import tempfile
 import numpy as np
 
-import keras
+import tf_keras as keras
 
 from sp_tool.arff_helper import ArffHelper
 import sp_tool.util as sp_util
